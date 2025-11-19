@@ -18,3 +18,9 @@
 
 /* Enable caps-lock LED */
 #define CAPS_LOCK_LED_INDEX 23
+
+/* Enable mouse_keys combined mode */
+#define MK_COMBINED
+
+// Define a default lighting profile
+#define RGBLIGHT_EFFECT_KNIGHT
