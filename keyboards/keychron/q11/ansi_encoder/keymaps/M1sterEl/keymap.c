@@ -83,12 +83,12 @@ enum layers{
 };
 
 #ifdef DIP_SWITCH_ENABLE
-/* 
+/*
  * This function is automatically called by QMK when the hardware switch on the keyboard (e.g., Mac/Win switch) is toggled.
- * 
+ *
  * - 'index == 0' refers to the primary Mac/Win slide switch.
  * - 'active' is true when switched to the 'Mac' side, and false when switched to the 'Win' side.
- * - We dynamically change the base active layer using the layer names (MAC_BASE or WIN_BASE) 
+ * - We dynamically change the base active layer using the layer names (MAC_BASE or WIN_BASE)
  *   from our 'layers' enum above. This keeps our layout working even if we add or remove layers later.
  * - Returning 'false' tells QMK to skip the default layer-switching behavior defined in keyboards/keychron/q11/q11.c.
  */
@@ -164,7 +164,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,        KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,      KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,    KC_RBRC,  KC_BSLS,            KC_PGDN,
         _______,        KC_CAPS,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,      KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,              KC_ENT,             KC_HOME,
         /* TG(WIN_DVORAK) - Uncomment the TG key code to toggle Dvorak layer */ _______, KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,      KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,              KC_RSFT,  KC_UP,
-        TG(WIN_NVG),    KC_LCTL,  MO(WIN_FN),  KC_LALT,  KC_LWIN,         KC_SPC,                        KC_SPC,             KC_RALT,  MO(WIN_FN), KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT
+        TG(WIN_NVG),    KC_LCTL,  MO(WIN_FN),  KC_LWIN,  KC_LALT,         KC_SPC,                        KC_SPC,             KC_RALT,  MO(WIN_FN), KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT
         ),
 
     [WIN_FN] = LAYOUT_91_ansi(
