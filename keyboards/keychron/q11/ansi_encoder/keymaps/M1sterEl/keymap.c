@@ -63,18 +63,42 @@
 //     return state;
 // }
 
+/*
+ * This enum defines the list of all layout layers on the keyboard.
+ * The order of layers here determines their index (e.g., MAC_BASE is layer 0, MAC_FN is layer 1, etc.).
+ * To temporarily disable Dvorak, we commented out the MAC_DVORAK and WIN_DVORAK lines.
+ * If you want to use Dvorak in the future, simply uncomment them here, in the keymap arrays below, and the layer blocks below.
+ */
 enum layers{
     MAC_BASE,
     MAC_FN,
     MAC_NVG,
     MAC_NVG_SCRLL,
-    MAC_DVORAK,
+    // MAC_DVORAK, // Uncomment this line to re-enable Dvorak for Mac
     WIN_BASE,
     WIN_FN,
     WIN_NVG,
     WIN_NVG_SCRLL,
-    WIN_DVORAK,
+    // WIN_DVORAK, // Uncomment this line to re-enable Dvorak for Windows
 };
+
+#ifdef DIP_SWITCH_ENABLE
+/* 
+ * This function is automatically called by QMK when the hardware switch on the keyboard (e.g., Mac/Win switch) is toggled.
+ * 
+ * - 'index == 0' refers to the primary Mac/Win slide switch.
+ * - 'active' is true when switched to the 'Mac' side, and false when switched to the 'Win' side.
+ * - We dynamically change the base active layer using the layer names (MAC_BASE or WIN_BASE) 
+ *   from our 'layers' enum above. This keeps our layout working even if we add or remove layers later.
+ * - Returning 'false' tells QMK to skip the default layer-switching behavior defined in keyboards/keychron/q11/q11.c.
+ */
+bool dip_switch_update_user(uint8_t index, bool active) {
+    if (index == 0) {
+        default_layer_set(1UL << (active ? MAC_BASE : WIN_BASE));
+    }
+    return false;
+}
+#endif
 
 #define KC_TASK LGUI(KC_TAB)
 #define KC_FLXP LGUI(KC_E)
@@ -86,7 +110,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,        KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,      KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,    KC_EQL,   KC_BSPC,            KC_PGUP,
         _______,        KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,      KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,    KC_RBRC,  KC_BSLS,            KC_PGDN,
         _______,        KC_CAPS,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,      KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,              KC_ENT,             KC_HOME,
-        TG(MAC_DVORAK), KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,      KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,              KC_RSFT,  KC_UP,
+        /* TG(MAC_DVORAK) - Uncomment the TG key code to toggle Dvorak layer */ _______, KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,      KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,              KC_RSFT,  KC_UP,
         TG(MAC_NVG),    KC_LCTL,  MO(MAC_FN),  KC_LOPT,  KC_LCMD,         KC_SPC,                        KC_SPC,             KC_RCMD,  MO(MAC_FN), KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT
         ),
 
@@ -108,6 +132,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,  _______,          _______,  _______,  _______,            _______,                       MS_BTN1,            _______,  _______,    _______,  _______,       _______,  _______
         ),
 
+    /*
+     * MAC_DVORAK Layer:
+     * To re-enable this layer, remove the block comment start indicator at the beginning
+     * and the block comment end indicator at the end of this block.
+     */
+    /*
     [MAC_DVORAK] = LAYOUT_91_ansi(
         KC_MUTE,  KC_ESC,   KC_BRID,  KC_BRIU,  KC_MCTL,  KC_LPAD,  RM_VALD,   RM_VALU,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,    KC_VOLU,  KC_INS,   KC_DEL,   KC_MUTE,
         _______,  KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,      KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,    KC_EQL,   KC_BSPC,            KC_PGUP,
@@ -116,6 +146,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,  KC_LSFT,            KC_SCLN,  KC_Q,     KC_J,     KC_K,      KC_X,     KC_B,     KC_M,     KC_W,     KC_V,     KC_Z,                KC_RSFT,  KC_UP,
         _______,  KC_LCTL,  MO(MAC_FN),  KC_LOPT,  KC_LCMD,         KC_SPC,                        KC_SPC,             KC_RCMD,  MO(MAC_FN), KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT
     ),
+    */
 
     [MAC_NVG_SCRLL] = LAYOUT_91_ansi(
         _______,  _______,  _______,  _______,  _______,  _______,  _______,   _______,              _______,             _______,                _______,              _______,  _______, _______, _______, _______, _______,
@@ -132,8 +163,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,        KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,      KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,    KC_EQL,   KC_BSPC,            KC_PGUP,
         _______,        KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,      KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,    KC_RBRC,  KC_BSLS,            KC_PGDN,
         _______,        KC_CAPS,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,      KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,              KC_ENT,             KC_HOME,
-        TG(WIN_DVORAK), KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,      KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,              KC_RSFT,  KC_UP,
-        TG(WIN_NVG),    KC_LCTL,  KC_LWIN,  KC_LALT,  MO(WIN_FN),         KC_SPC,                        KC_SPC,             KC_RALT,  MO(WIN_FN), KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT
+        /* TG(WIN_DVORAK) - Uncomment the TG key code to toggle Dvorak layer */ _______, KC_LSFT,            KC_Z,     KC_X,     KC_C,     KC_V,      KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,              KC_RSFT,  KC_UP,
+        TG(WIN_NVG),    KC_LCTL,  MO(WIN_FN),  KC_LALT,  KC_LWIN,         KC_SPC,                        KC_SPC,             KC_RALT,  MO(WIN_FN), KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT
         ),
 
     [WIN_FN] = LAYOUT_91_ansi(
@@ -163,14 +194,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______,  _______,  _______,  _______,  _______,            MS_BTN3,                         MS_BTN2,                                                        _______,  _______, _______, _______, _______, _______
         ),
 
+    /*
+     * WIN_DVORAK Layer:
+     * To re-enable this layer, remove the block comment start indicator at the beginning
+     * and the block comment end indicator at the end of this block.
+     */
+    /*
     [WIN_DVORAK] = LAYOUT_91_ansi(
         KC_MUTE,      KC_ESC,   KC_BRID,  KC_BRIU,  KC_TASK,  KC_FLXP,  RM_VALD,   RM_VALU,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,    KC_VOLU,  KC_INS,   KC_DEL,   KC_MUTE,
         _______,      KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,      KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,    KC_EQL,   KC_BSPC,            KC_PGUP,
         _______,      KC_TAB,   KC_QUOT,  KC_COMM,  KC_DOT,   KC_P,     KC_Y,      KC_F,     KC_G,     KC_C,     KC_R,     KC_L,     KC_SLSH,    KC_EQL,   KC_BSLS,            KC_PGDN,
         _______,      KC_CAPS,  KC_A,     KC_O,     KC_E,     KC_U,     KC_I,      KC_D,     KC_H,     KC_T,     KC_N,     KC_S,     KC_MINS,              KC_ENT,             KC_HOME,
         _______,      KC_LSFT,            KC_SCLN,  KC_Q,     KC_J,     KC_K,      KC_X,     KC_B,     KC_M,     KC_W,     KC_V,     KC_Z,                KC_RSFT,  KC_UP,
-        TG(WIN_NVG),  KC_LCTL,  KC_LWIN,  KC_LALT,  MO(WIN_FN),         KC_SPC,                        KC_SPC,             KC_RALT,  MO(WIN_FN), KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT
+        TG(WIN_NVG),  KC_LCTL,  MO(WIN_FN),  KC_LALT,  KC_LWIN,         KC_SPC,                        KC_SPC,             KC_RALT,  MO(WIN_FN), KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT
         ),
+    */
 };
 
 #if defined(ENCODER_MAP_ENABLE)
