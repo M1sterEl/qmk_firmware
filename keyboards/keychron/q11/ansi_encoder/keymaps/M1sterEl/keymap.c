@@ -15,53 +15,43 @@
  */
 #include QMK_KEYBOARD_H
 
-// Store which LED belongs to which TG key
-// #define MAX_TG_KEYS 5
-// static uint8_t tg_leds[MAX_TG_KEYS];
-// static uint8_t tg_layers[MAX_TG_KEYS];
-// static uint8_t tg_count = 0;
+/*
+ * The M1-M5 macro keys sit in a column left of the alphas (row 1-5, col 0).
+ * Whichever one currently has a TG(layer) keycode bound to it lights up
+ * white while that layer is active - same mechanism q11.c uses to light
+ * Caps Lock. We look the keycode up from the keymap itself (instead of
+ * keeping a hand-maintained LED->layer table) so this keeps working with
+ * zero extra code if M1-M4 ever get bound to a layer too.
+ */
+static const keypos_t mx_keys[] = {
+    {.row = 1, .col = 0}, // M1
+    {.row = 2, .col = 0}, // M2
+    {.row = 3, .col = 0}, // M3
+    {.row = 4, .col = 0}, // M4
+    {.row = 5, .col = 0}, // M5
+};
 
-// // Capture TG() presses and remember their LED index
-// bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-//     if ((keycode & QK_TOGGLE_LAYER) == QK_TOGGLE_LAYER) {
-//         uint8_t layer = keycode & 0xFF;
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    // Mx keys are only bound on the base layer (transparent elsewhere), and
+    // the Mac/Win base layer is picked once by the dip switch, so that's the
+    // only layer we need to read the keycode from.
+    uint8_t base_layer = get_highest_layer(default_layer_state);
 
-//         if (record->event.pressed) {
-//             uint8_t led_index = g_led_config.matrix_co[record->event.key.row][record->event.key.col];
+    for (uint8_t i = 0; i < ARRAY_SIZE(mx_keys); i++) {
+        uint16_t keycode = keymap_key_to_keycode(base_layer, mx_keys[i]);
+        if (IS_QK_TOGGLE_LAYER(keycode)) {
+            uint8_t layer = QK_TOGGLE_LAYER_GET_LAYER(keycode);
+            if (layer_state_cmp(layer_state, layer)) {
+                uint8_t led = g_led_config.matrix_co[mx_keys[i].row][mx_keys[i].col];
+                if (led >= led_min && led < led_max && led != NO_LED) {
+                    rgb_matrix_set_color(led, RGB_WHITE);
+                }
+            }
+        }
+    }
 
-//             // Only save if valid and not already tracked
-//             if (tg_count < MAX_TG_KEYS && led_index != NO_LED) {
-//                 bool already = false;
-//                 for (uint8_t i = 0; i < tg_count; i++) {
-//                     if (tg_layers[i] == layer) {
-//                         already = true;
-//                         break;
-//                     }
-//                 }
-//                 if (!already) {
-//                     tg_layers[tg_count] = layer;
-//                     tg_leds[tg_count] = led_index;
-//                     tg_count++;
-//                 }
-//             }
-//         }
-//     }
-//     return true;
-// }
-
-// // Light up TG() keys when their layer is active
-// layer_state_t layer_state_set_user(layer_state_t state) {
-//     // Clear all
-//     rgb_matrix_set_color_all(0, 0, 0);
-
-//     for (uint8_t i = 0; i < tg_count; i++) {
-//         if (layer_state_cmp(state, tg_layers[i])) {
-//             rgb_matrix_set_color(tg_leds[i], 255, 0, 0); // blue indicator
-//         }
-//     }
-
-//     return state;
-// }
+    return true;
+}
 
 /*
  * This enum defines the list of all layout layers on the keyboard.
